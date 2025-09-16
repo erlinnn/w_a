@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-  // ----------------------------
-  // Globe Initialization
-  // ----------------------------
   const globeContainer = document.getElementById('globeViz');
 
+  // ----------------------------
+  // Initialize Globe
+  // ----------------------------
   const myGlobe = Globe()(globeContainer)
-    .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
+    .globeImageUrl('https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/earthmap1k.jpg')
+    .globeCloudsUrl('https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/earthcloudmaptrans.jpg')
     .backgroundColor('#111')
     .showAtmosphere(true)
     .atmosphereColor('lightskyblue')
@@ -17,26 +17,33 @@ document.addEventListener('DOMContentLoaded', () => {
     .pointRadius(0.5)
     .pointsTransitionDuration(1000);
 
-  // Make myGlobe globally accessible for other functions
-  window.myGlobe = myGlobe;
-
   // ----------------------------
-  // Auto-rotation
+  // Auto-rotation + cloud rotation
   // ----------------------------
   let rotation = 0;
   function rotateGlobe() {
-    rotation += 0.001;
+    rotation += 0.0005;
     myGlobe.pointOfView({ lat: 0, lng: rotation * 180 / Math.PI, altitude: 2 });
     requestAnimationFrame(rotateGlobe);
   }
   rotateGlobe();
 
   // ----------------------------
+  // Pulse marker
+  // ----------------------------
+  let pulse = 0;
+  function pulseMarker() {
+    pulse += 0.05;
+    myGlobe.pointAltitude(p => 0.05 + Math.sin(pulse) * 0.01);
+    requestAnimationFrame(pulseMarker);
+  }
+  pulseMarker();
+
+  // ----------------------------
   // DOM Elements
   // ----------------------------
   const searchBtn = document.getElementById('searchBtn');
   const cityInput = document.getElementById('cityInput');
-
   const weatherCard = document.getElementById('weatherCard');
   const cityNameEl = document.getElementById('cityName');
   const tempEl = document.getElementById('temperature');
@@ -54,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function animate() {
       const now = performance.now();
       const t = Math.min((now - startTime) / duration, 1);
-      const easeT = t * (2 - t);
+      const easeT = t * (2 - t); // easeOutQuad
 
       myGlobe.pointOfView({
         lat: start.lat + (lat - start.lat) * easeT,
@@ -68,22 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------
-  // Marker pulse (no PNG needed)
+  // Search & fetch weather
   // ----------------------------
-  let pulse = 0;
-  function pulseMarker() {
-    pulse += 0.05;
-    myGlobe.pointAltitude(p => 0.05 + Math.sin(pulse) * 0.01);
-    requestAnimationFrame(pulseMarker);
-  }
-  pulseMarker();
-
-  // ----------------------------
-  // Search & Geocoding
-  // ----------------------------
-  searchBtn.addEventListener('click', () => {
+  function searchCity() {
     const city = cityInput.value.trim();
-    if (!city) return alert("Please enter a city");
+    if (!city) return alert("Enter a city");
 
     fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${OPENWEATHER_API_KEY}`)
       .then(res => res.json())
@@ -91,38 +87,45 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data || data.length === 0) return alert("City not found");
 
         const { lat, lon, name } = data[0];
-
-        // Move globe and set marker
         flyTo(lat, lon);
-        myGlobe.pointsData([{ lat, lng: lon }])
-               .pointColor(() => 'yellow')
-               .pointRadius(0.5);
+
+        // Marker color based on temperature (default yellow)
+        myGlobe.pointsData([{ lat, lng: lon }]).pointColor(() => 'yellow').pointRadius(0.5);
 
         // Fetch weather
-        getWeather(lat, lon, name);
-      })
-      .catch(err => console.error(err));
-  });
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER_API_KEY}`)
+          .then(res => res.json())
+          .then(weather => {
+            const temp = weather.main.temp;
+            const sunrise = new Date(weather.sys.sunrise * 1000).toLocaleTimeString();
+            const sunset  = new Date(weather.sys.sunset * 1000).toLocaleTimeString();
 
-  // ----------------------------
-  // Fetch weather & update card
-  // ----------------------------
-  function getWeather(lat, lon, name) {
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER_API_KEY}`)
-      .then(res => res.json())
-      .then(data => {
-        const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
-        const sunset  = new Date(data.sys.sunset * 1000).toLocaleTimeString();
+            // Dynamic marker color
+            let color = temp < 15 ? 'blue' : temp > 25 ? 'red' : 'yellow';
+            myGlobe.pointsData([{ lat, lng: lon }]).pointColor(() => color).pointRadius(0.6);
 
-        cityNameEl.textContent = name;
-        tempEl.textContent = `Temperature: ${data.main.temp}°C`;
-        humidityEl.textContent = `Humidity: ${data.main.humidity}%`;
-        conditionEl.textContent = `Condition: ${data.weather[0].description}`;
-        extraEl.textContent = `Feels like: ${data.main.feels_like}°C, Wind: ${data.wind.speed} m/s, 🌅 ${sunrise}, 🌇 ${sunset}`;
+            // Weather card update
+            cityNameEl.textContent = name;
+            tempEl.textContent = `Temperature: ${temp}°C`;
+            humidityEl.textContent = `Humidity: ${weather.main.humidity}%`;
+            conditionEl.textContent = `Condition: ${weather.weather[0].description}`;
+            extraEl.textContent = `Feels like: ${weather.main.feels_like}°C, Wind: ${weather.wind.speed} m/s, 🌅 ${sunrise}, 🌇 ${sunset}`;
 
-        weatherCard.style.display = 'block';
+            weatherCard.style.display = 'block';
+            weatherCard.style.opacity = 0;
+            let opacity = 0;
+            const fadeIn = () => {
+              opacity += 0.05;
+              weatherCard.style.opacity = opacity;
+              if (opacity < 1) requestAnimationFrame(fadeIn);
+            };
+            fadeIn();
+          });
       })
       .catch(err => console.error(err));
   }
+
+  searchBtn.addEventListener('click', searchCity);
+  cityInput.addEventListener('keypress', e => { if(e.key==='Enter') searchCity(); });
 
 });
