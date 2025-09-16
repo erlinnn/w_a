@@ -8,16 +8,13 @@
 </head>
 <body>
 
-  <!-- Search Box -->
   <div class="search-box">
     <input type="text" id="cityInput" placeholder="Type a city...">
     <button id="searchBtn">Go</button>
   </div>
 
-  <!-- Globe -->
   <div id="globeViz"></div>
 
-  <!-- Weather Card -->
   <div id="weatherCard" style="display:none;">
     <h2 id="cityName">City</h2>
     <p id="temperature"></p>
@@ -26,13 +23,8 @@
     <p id="extra"></p>
   </div>
 
-  <!-- ----------------------------
-       JS Libraries & Scripts
-  ---------------------------- -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/globe.gl@4.5.3/dist/globe.gl.min.js"></script>
   <script src="config.js"></script>
-  <script src="script.js"></script>
+  <script type="module" src="script.js"></script>
 
 </body>
 </html>
