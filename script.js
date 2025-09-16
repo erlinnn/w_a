@@ -1,5 +1,5 @@
-// Import the Globe library
-import Globe from '//unpkg.com/globe.gl';
+// Change is on this line: added curly braces around Globe
+import { Globe } from '//unpkg.com/globe.gl';
 
 const globeContainer = document.getElementById('globeViz');
 
