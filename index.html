@@ -3,28 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Weather Globe</title>
-  <link rel="stylesheet" href="style.css">
+  <title>3D Weather Globe</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    #globeViz {
+      width: 100vw;
+      height: 100vh;
+    }
+    #searchBox {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      z-index: 10;
+    }
+  </style>
 </head>
 <body>
-
-  <div class="search-box">
-    <input type="text" id="cityInput" placeholder="Type a city...">
-    <button id="searchBtn">Go</button>
-  </div>
-
+  <input id="searchBox" type="text" placeholder="Enter a city (e.g. Mysore)" />
   <div id="globeViz"></div>
 
-  <div id="weatherCard" style="display:none;">
-    <h2 id="cityName">City</h2>
-    <p id="temperature"></p>
-    <p id="humidity"></p>
-    <p id="condition"></p>
-    <p id="extra"></p>
-  </div>
+  <!-- Load dependencies in correct order -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl@4.5.3/dist/globe.gl.min.js"></script>
 
+  <!-- Your config (API key) -->
   <script src="config.js"></script>
-  <script type="module" src="script.js"></script>
 
+  <!-- Your main script -->
+  <script src="script.js"></script>
 </body>
 </html>
