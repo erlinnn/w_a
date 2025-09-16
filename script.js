@@ -5,13 +5,18 @@ const globeContainer = document.getElementById('globeViz');
 // ----------------------------
 // Initialize Globe
 // ----------------------------
-const myGlobe = Globe()(globeContainer)
+
+// First, create a new instance and configure it
+const myGlobe = new Globe()
   .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
   .atmosphereColor('lightskyblue')
   .atmosphereAltitude(0.25)
   .pointsData([{ lat: 0, lng: 0, size: 0.1, color: 'yellow' }])
   .pointAltitude('size')
   .pointColor('color');
+
+// Then, render the configured instance in your container
+myGlobe(globeContainer);
 
 // Auto-rotate the globe
 myGlobe.controls().autoRotate = true;
