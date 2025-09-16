@@ -1,16 +1,15 @@
 body {
   margin: 0;
-  overflow: hidden;
   background: #000;
+  color: #fff;
   font-family: Arial, sans-serif;
+  overflow: hidden;
 }
 
-#globeViz {
+#globe-container {
   width: 100vw;
   height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
 }
 
 #search-container {
@@ -26,6 +25,8 @@ body {
   font-size: 16px;
   border: none;
   border-radius: 5px;
+  background: rgba(255, 255, 255, 0.9);
+  outline: none;
   width: 200px;
 }
 
@@ -34,21 +35,22 @@ body {
   top: 100px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.7);
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
+  display: none;
   z-index: 10;
-  max-width: 300px;
+  transition: opacity 0.5s ease;
   text-align: center;
+  min-width: 200px;
 }
 
-#weather-card.show {
-  opacity: 1;
+#weather-card h2 {
+  margin: 0 0 10px;
+  font-size: 24px;
 }
 
-.city-point {
-  filter: drop-shadow(0 0 10px #ffcc00);
+#weather-card p {
+  margin: 5px 0;
+  font-size: 16px;
 }
