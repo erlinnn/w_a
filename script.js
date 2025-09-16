@@ -1,4 +1,4 @@
-import { Globe } from './globe.gl.min.js';
+import Globe from './globe.gl.min.js';
 
 const globeContainer = document.getElementById('globeViz');
 
