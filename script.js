@@ -1,35 +1,70 @@
-// Import the 'three' library, which is now available thanks to the importmap.
-import * as THREE from 'three';
+import { API_KEY } from './config.js';
 
-// 1. Scene: The container for all objects.
-const scene = new THREE.Scene();
+// Initialize Globe.gl
+const globe = Globe()
+  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+  .backgroundColor('#000000')
+  .showAtmosphere(true)
+  .atmosphereColor('#3a228a')
+  .atmosphereAltitude(0.25)
+  (document.getElementById('globeViz'));
 
-// 2. Camera: The viewpoint from which we see the scene.
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
+// Auto-rotate globe
+globe.controls().autoRotate = true;
+globe.controls().autoRotateSpeed = 1;
 
-// 3. Renderer: The engine that draws the scene onto the screen.
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+// Handle city search
+const cityInput = document.getElementById('city-input');
+const weatherCard = document.getElementById('weather-card');
+cityInput.addEventListener('keypress', async (e) => {
+  if (e.key === 'Enter' && cityInput.value) {
+    const city = cityInput.value.trim();
+    try {
+      // Geocode city to lat/long
+      const geoResponse = await fetch(
+        `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`
+      );
+      const geoData = await geoResponse.json();
+      if (!geoData.length) {
+        alert('City not found!');
+        return;
+      }
+      const { lat, lon } = geoData[0];
 
-// 4. Object: A simple cube to display.
-const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+      // Zoom to city
+      globe.pointOfView({
+        lat: lat,
+        lng: lon,
+        altitude: 1.5
+      }, 1000);
 
-// 5. Animation Loop: A function that runs on every frame to update the scene.
-function animate() {
-    requestAnimationFrame(animate);
+      // Add glowing city point
+      globe.pointsData([{ lat, lng: lon, size: 0.1, color: '#ffcc00' }])
+        .pointRadius(0.5)
+        .pointsMerge(true)
+        .pointAltitude(0.07)
+        .pointColor('color');
 
-    // Rotate the cube on each frame
-    cube.rotation.x += 0.005;
-    cube.rotation.y += 0.005;
+      // Fetch weather data
+      const weatherResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
+      );
+      const weatherData = await weatherResponse.json();
 
-    // Render the scene from the camera's perspective
-    renderer.render(scene, camera);
-}
+      // Update weather card
+      document.getElementById('city-name').textContent = weatherData.name;
+      document.getElementById('temperature').textContent = `Temperature: ${weatherData.main.temp} °C`;
+      document.getElementById('humidity').textContent = `Humidity: ${weatherData.main.humidity}%`;
+      document.getElementById('condition').textContent = `Condition: ${weatherData.weather[0].description}`;
+      document.getElementById('wind-speed').textContent = `Wind Speed: ${weatherData.wind.speed} m/s`;
+      document.getElementById('sunrise').textContent = `Sunrise: ${new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString()}`;
+      document.getElementById('sunset').textContent = `Sunset: ${new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}`;
 
-// Start the animation loop
-animate();
+      // Show weather card with fade-in
+      weatherCard.classList.add('show');
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      alert('Error fetching data. Please try again.');
+    }
+  }
+});
