@@ -1,25 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Three.js ES Module Example</title>
-
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
-            }
-        }
-    </script>
-
-    <style>
-        body { margin: 0; }
-        canvas { display: block; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Globe Weather App</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      font-family: Arial, sans-serif;
+    }
+    #globeViz {
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+    #search-container {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+    #city-input {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      width: 200px;
+    }
+    #weather-card {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      z-index: 10;
+      max-width: 300px;
+      text-align: center;
+    }
+    #weather-card.show {
+      opacity: 1;
+    }
+    .city-point {
+      filter: drop-shadow(0 0 10px #ffcc00);
+    }
+  </style>
 </head>
 <body>
-    <script type="module" src="script.js"></script>
+  <div id="search-container">
+    <input type="text" id="city-input" placeholder="Enter city name">
+  </div>
+  <div id="weather-card">
+    <h2 id="city-name"></h2>
+    <p id="temperature"></p>
+    <p id="humidity"></p>
+    <p id="condition"></p>
+    <p id="wind-speed"></p>
+    <p id="sunrise"></p>
+    <p id="sunset"></p>
+  </div>
+  <div id="globeViz"></div>
+
+  <script src="https://unpkg.com/globe.gl@2.29.0/dist/globe.gl.min.js"></script>
+  <script>
+    // Initialize Globe.gl
+    const globe = Globe()
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+      .backgroundColor('#000000')
+      .showAtmosphere(true)
+      .atmosphereColor('#3a228a')
+      .atmosphereAltitude(0.25)
+      (document.getElementById('globeViz'));
+
+    // Auto-rotate globe
+    globe.controls().autoRotate = true;
+    globe.controls().autoRotateSpeed = 1;
+
+    // OpenWeather API key (replace with your own key)
+    const API_KEY = 'YOUR_OPENWEATHER_API_KEY'; // Get from https://openweathermap.org/
+
+    // Handle city search
+    const cityInput = document.getElementById('city-input');
+    const weatherCard = document.getElementById('weather-card');
+    cityInput.addEventListener('keypress', async (e) => {
+      if (e.key === 'Enter' && cityInput.value) {
+        const city = cityInput.value.trim();
+        try {
+          // Geocode city to lat/long
+          const geoResponse = await fetch(
+            `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`
+          );
+          const geoData = await geoResponse.json();
+          if (!geoData.length) {
+            alert('City not found!');
+            return;
+          }
+          const { lat, lon } = geoData[0];
+
+          // Zoom to city
+          globe.pointOfView({
+            lat: lat,
+            lng: lon,
+            altitude: 1.5
+          }, 1000);
+
+          // Add glowing city point
+          globe.pointsData([{ lat, lng: lon, size: 0.1, color: '#ffcc00' }])
+            .pointRadius(0.5)
+            .pointsMerge(true)
+            .pointAltitude(0.07)
+            .pointColor('color');
+
+          // Fetch weather data
+          const weatherResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`
+          );
+          const weatherData = await weatherResponse.json();
+
+          // Update weather card
+          document.getElementById('city-name').textContent = weatherData.name;
+          document.getElementById('temperature').textContent = `Temperature: ${weatherData.main.temp} °C`;
+          document.getElementById('humidity').textContent = `Humidity: ${weatherData.main.humidity}%`;
+          document.getElementById('condition').textContent = `Condition: ${weatherData.weather[0].description}`;
+          document.getElementById('wind-speed').textContent = `Wind Speed: ${weatherData.wind.speed} m/s`;
+          document.getElementById('sunrise').textContent = `Sunrise: ${new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString()}`;
+          document.getElementById('sunset').textContent = `Sunset: ${new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}`;
+
+          // Show weather card with fade-in
+          weatherCard.classList.add('show');
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          alert('Error fetching data. Please try again.');
+        }
+      }
+    });
+  </script>
 </body>
 </html>
