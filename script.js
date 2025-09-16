@@ -1,5 +1,4 @@
-// Change is on this line: added curly braces around Globe
-import { Globe } from '//unpkg.com/globe.gl';
+import { Globe } from './globe.gl.min.js';
 
 const globeContainer = document.getElementById('globeViz');
 
