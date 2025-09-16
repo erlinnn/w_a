@@ -1,88 +1,35 @@
-// Import the correct ES Module version of the library directly from a reliable CDN
-import Globe from 'https://unpkg.com/globe.gl/dist/globe.gl.mjs';
+// Import the 'three' library, which is now available thanks to the importmap.
+import * as THREE from 'three';
 
-const globeContainer = document.getElementById('globeViz');
+// 1. Scene: The container for all objects.
+const scene = new THREE.Scene();
 
-// ----------------------------
-// Initialize Globe
-// ----------------------------
-const myGlobe = Globe()(globeContainer)
-  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-  .atmosphereColor('lightskyblue')
-  .atmosphereAltitude(0.25)
-  .pointsData([{ lat: 0, lng: 0, size: 0.1, color: 'yellow' }])
-  .pointAltitude('size')
-  .pointColor('color');
+// 2. Camera: The viewpoint from which we see the scene.
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 5;
 
-// Auto-rotate the globe
-myGlobe.controls().autoRotate = true;
-myGlobe.controls().autoRotateSpeed = 0.3;
+// 3. Renderer: The engine that draws the scene onto the screen.
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-// ----------------------------
-// DOM Elements
-// ----------------------------
-const searchBtn = document.getElementById('searchBtn');
-const cityInput = document.getElementById('cityInput');
-const weatherCard = document.getElementById('weatherCard');
-const cityNameEl = document.getElementById('cityName');
-const tempEl = document.getElementById('temperature');
-const humidityEl = document.getElementById('humidity');
-const conditionEl = document.getElementById('condition');
-const extraEl = document.getElementById('extra');
+// 4. Object: A simple cube to display.
+const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
 
-// ----------------------------
-// Search & fetch weather
-// ----------------------------
-function searchCity() {
-  const city = cityInput.value.trim();
-  if (!city) return alert("Please enter a city name.");
+// 5. Animation Loop: A function that runs on every frame to update the scene.
+function animate() {
+    requestAnimationFrame(animate);
 
-  // Fetch coordinates for the city
-  fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${OPENWEATHER_API_KEY}`)
-    .then(res => res.json())
-    .then(data => {
-      if (!data || data.length === 0) {
-        return alert("City not found. Please try again.");
-      }
+    // Rotate the cube on each frame
+    cube.rotation.x += 0.005;
+    cube.rotation.y += 0.005;
 
-      const { lat, lon, name } = data[0];
-
-      // Fly to location
-      myGlobe.pointOfView({ lat, lng: lon, altitude: 0.5 }, 2000);
-
-      // Fetch weather data
-      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${OPENWEATHER_API_KEY}`)
-        .then(res => res.json())
-        .then(weather => {
-          const temp = weather.main.temp;
-          const sunrise = new Date(weather.sys.sunrise * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-          const sunset = new Date(weather.sys.sunset * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-          // Determine marker color based on temperature
-          let color = temp < 10 ? 'cyan' : temp > 25 ? 'red' : 'yellow';
-
-          // Update marker on the globe
-          myGlobe.pointsData([{ lat, lng: lon, size: 0.1, color: color }]);
-
-          // Update and show weather card
-          cityNameEl.textContent = name;
-          tempEl.innerHTML = `🌡️ Temperature: ${temp.toFixed(1)}°C`;
-          humidityEl.innerHTML = `💧 Humidity: ${weather.main.humidity}%`;
-          conditionEl.textContent = `Condition: ${weather.weather[0].description}`;
-          extraEl.innerHTML = `Feels like: ${weather.main.feels_like.toFixed(1)}°C, Wind: ${weather.wind.speed} m/s | 🌅 ${sunrise} | 🌇 ${sunset}`;
-
-          weatherCard.style.display = 'block';
-        });
-    })
-    .catch(err => {
-      console.error("Error:", err);
-      alert("An error occurred while fetching data.");
-    });
+    // Render the scene from the camera's perspective
+    renderer.render(scene, camera);
 }
 
-searchBtn.addEventListener('click', searchCity);
-cityInput.addEventListener('keypress', e => {
-  if (e.key === 'Enter') {
-    searchCity();
-  }
-});
+// Start the animation loop
+animate();
