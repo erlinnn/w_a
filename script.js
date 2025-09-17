@@ -1,3 +1,4 @@
+```javascript
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
 import { EffectComposer } from 'https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/postprocessing/RenderPass.js';
@@ -8,7 +9,7 @@ import { VignetteShader } from 'https://cdn.jsdelivr.net/npm/three@0.169.0/examp
 import TWEEN from 'https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@23.1.3/dist/tween.esm.js';
 
 // Core Weather Engine
-const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826'; // Provided OpenWeatherMap API key
+const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826';
 const searchInput = document.getElementById('search-input');
 const weatherCard = document.getElementById('weather-card');
 const cityNameEl = document.getElementById('city-name');
@@ -23,17 +24,14 @@ const sunsetEl = document.getElementById('sunset');
 
 async function fetchWeather(city) {
     try {
-        // Geocoding API to get lat/lon
         const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${API_KEY}`);
         const geoData = await geoRes.json();
         if (geoData.length === 0) throw new Error('City not found');
         const { lat, lon, name } = geoData[0];
 
-        // Current Weather API
         const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`);
         const weatherData = await weatherRes.json();
 
-        // Update UI
         cityNameEl.textContent = name;
         weatherIconEl.src = `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`;
         temperatureEl.textContent = `Temperature: ${weatherData.main.temp} °C`;
@@ -45,14 +43,10 @@ async function fetchWeather(city) {
         sunsetEl.textContent = `Sunset: ${new Date(weatherData.sys.sunset * 1000).toLocaleTimeString()}`;
         weatherCard.style.display = 'block';
 
-        // Animate camera and add marker
         addCityMarker(lat, lon, weatherData.main.temp);
         animateCameraToCity(lat, lon);
-
-        // Add weather visualization
         addWeatherEffect(lat, lon, weatherData.weather[0].main);
 
-        // Auto refresh every 10 minutes
         setTimeout(() => fetchWeather(city), 600000);
     } catch (error) {
         console.error(error);
@@ -74,7 +68,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 const textureLoader = new THREE.TextureLoader();
-
 const earthRadius = 5;
 
 const dayTexture = textureLoader.load('https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg');
@@ -104,7 +97,6 @@ const clouds = new THREE.Mesh(
 );
 scene.add(clouds);
 
-// Atmosphere
 const atmosphereMaterial = new THREE.ShaderMaterial({
     uniforms: { c: { value: 0.5 }, p: { value: 1.4 } },
     vertexShader: `
@@ -233,7 +225,7 @@ function addWeatherEffect(lat, lon, condition) {
             effect.geometry.attributes.position.needsUpdate = true;
         }
         animateFunctions.push(animateRain);
-    } // Add other conditions (Snow, Thunderstorm, etc.) as needed
+    }
 }
 
 // Time of Day Simulation
@@ -252,7 +244,7 @@ function updateSun() {
 const auroraMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
 const aurora = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 2, 32), auroraMaterial);
 aurora.position.y = earthRadius + 1;
-// scene.add(aurora); // Uncomment to enable
+// scene.add(aurora);
 
 // Animation Loop
 const animateFunctions = [];
@@ -274,3 +266,4 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
 });
+```
