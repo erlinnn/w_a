@@ -95,7 +95,7 @@ function showWeather(data, city) {
     errorMsg.style.display = 'none';
 }
 
-// Show loading state (optional, simplified)
+// Show loading state (simplified)
 function showLoading() {
     weatherInfo.style.display = 'none';
     errorMsg.style.display = 'none';
@@ -106,7 +106,7 @@ function zoomToLocation(lat, lng, city) {
     controls.autoRotate = false;
     autoRotateEnabled = false;
 
-    // Add city label (optional, for visualization)
+    // Add city label
     globe
         .labelsData([{ lat, lng, text: city, color: 'white', altitude: 0.01 }])
         .labelLat(d => d.lat)
@@ -142,6 +142,7 @@ function zoomOut() {
     autoRotateEnabled = true;
     weatherInfo.style.display = 'none';
     errorMsg.style.display = 'none';
+    cityNameEl.textContent = ''; // Clear the city name
     globe.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 2000);
 }
 
