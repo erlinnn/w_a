@@ -3,25 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Max-Level Weather Globe App</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Globe Weather App</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
 </head>
 <body>
-    <div id="search-container">
-        <input id="search-input" type="text" placeholder="Enter city name...">
+    <div id="globeViz"></div>
+    <input type="text" id="locationInput" placeholder="Enter a city (e.g., London)" maxlength="50">
+    <div id="weatherOverlay" class="hidden">
+        <h2 id="cityName"></h2>
+        <div id="weatherDetails"></div>
+        <img id="weatherIcon" alt="Weather icon">
     </div>
-    <div id="weather-card">
-        <h2 id="city-name"></h2>
-        <img id="weather-icon" class="weather-icon" src="" alt="Weather Icon">
-        <p id="temperature"></p>
-        <p id="feels-like"></p>
-        <p id="condition"></p>
-        <p id="humidity"></p>
-        <p id="wind"></p>
-        <p id="sunrise"></p>
-        <p id="sunset"></p>
-    </div>
-    <script type="module" src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
