@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Globe Weather App</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- Suppress favicon 404 -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <script type="module" src="https://unpkg.com/three@0.160.0/build/three.module.js"></script>
+    <script type="module" src="https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js"></script>
     <script type="module" src="https://unpkg.com/globe.gl@2.29.0/dist/globe.gl.min.js"></script>
 </head>
 <body>
     <div id="globeViz"></div>
-    <input type="text" id="locationInput" placeholder="Enter a city (EX : Mysore )" maxlength="50">
+    <input type="text" id="locationInput" placeholder="Enter a city (e.g., London)" maxlength="50">
     <div id="weatherOverlay" class="hidden">
         <h2 id="cityName"></h2>
         <div id="weatherDetails"></div>
