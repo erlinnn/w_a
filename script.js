@@ -1,4 +1,4 @@
-const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826'; // OpenWeatherMap key 
+const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826'; // Regenerate for prod security!
 
 let globe;
 let currentView = { lat: 0, lng: 0, altitude: 2.5 };
@@ -6,22 +6,41 @@ let timeoutId;
 
 // Initialize globe
 function initGlobe() {
-    globe = new Globe(document.getElementById('globeViz'), {
-        globeImageUrl: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg'
-    });
+    try {
+        globe = new Globe(document.getElementById('globeViz'), {
+            globeImageUrl: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+            // Fallback texture
+            globeImageUrlFallback: '//unpkg.com/three-globe/example/img/earth-night.jpg'
+        });
+        console.log('Globe initialized');
 
-    globe.pointOfView(currentView, 0);
+        globe.pointOfView(currentView, 0);
 
-    const controls = globe.controls();
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.2;
+        const controls = globe.controls();
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.2;
 
-    window.addEventListener('resize', () => globe.resize());
+        // Handle resize (updated)
+        window.addEventListener('resize', () => {
+            globe.width(window.innerWidth);
+            globe.height(window.innerHeight);
+            globe.camera.aspect = window.innerWidth / window.innerHeight;
+            globe.camera.updateProjectionMatrix();
+        });
+
+        // Trigger initial resize
+        globe.width(window.innerWidth);
+        globe.height(window.innerHeight);
+        globe.camera.aspect = window.innerWidth / window.innerHeight;
+        globe.camera.updateProjectionMatrix();
+    } catch (error) {
+        console.error('Globe initialization failed:', error);
+    }
 }
 
 // Debounce function
 function debounce(func, delay) {
-    return function(...args) {
+    return function (...args) {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => func.apply(this, args), delay);
     };
@@ -41,7 +60,6 @@ input.addEventListener('input', (e) => {
 });
 
 function handleSearch(city) {
-    // Geocoding via OpenWeatherMap
     fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${API_KEY}`)
         .then(res => {
             if (!res.ok) throw new Error(`Geocoding error: ${res.status}`);
@@ -52,7 +70,7 @@ function handleSearch(city) {
                 const loc = data[0];
                 globe.controls().autoRotate = false;
                 const newView = { lat: loc.lat, lng: loc.lon, altitude: 0.1 };
-                globe.pointOfView(newView, 2500); // 2.5s zoom
+                globe.pointOfView(newView, 2500);
                 currentView = newView;
                 document.getElementById('cityName').textContent = `${loc.name}${loc.country ? ', ' + loc.country : ''}`;
                 document.getElementById('errorMsg').style.display = 'none';
@@ -68,7 +86,6 @@ function handleSearch(city) {
 }
 
 function fetchWeather(lat, lng) {
-    // OpenWeatherMap Current Weather API
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`;
     fetch(url)
         .then(res => {
