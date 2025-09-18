@@ -20,19 +20,8 @@ function initGlobe() {
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.2;
 
-        // Handle resize (updated)
-        window.addEventListener('resize', () => {
-            globe.width(window.innerWidth);
-            globe.height(window.innerHeight);
-            globe.camera.aspect = window.innerWidth / window.innerHeight;
-            globe.camera.updateProjectionMatrix();
-        });
-
-        // Trigger initial resize
-        globe.width(window.innerWidth);
-        globe.height(window.innerHeight);
-        globe.camera.aspect = window.innerWidth / window.innerHeight;
-        globe.camera.updateProjectionMatrix();
+        // Remove problematic resize logic
+        // Window resize will be handled by Globe.GL internally
     } catch (error) {
         console.error('Globe initialization failed:', error);
     }
