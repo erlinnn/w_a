@@ -19,5 +19,6 @@ Type a city name and the globe will zoom in to that city and show the latest wea
 ---
 
 ## 📸 Screenshots / Demo
-<img width="1919" height="933" alt="image" src="https://github.com/user-attachments/assets/86e6933e-9854-410f-9906-896cdda35e66" />
-<img width="1919" height="934" alt="image" src="https://github.com/user-attachments/assets/767297a8-a27b-4f15-846a-4689aec8a8cf" />
+<img width="1919" height="919" alt="image" src="https://github.com/user-attachments/assets/e096bf73-e2c8-443d-bfe5-9f90be9cfb09" />
+<img width="1919" height="923" alt="image" src="https://github.com/user-attachments/assets/1ad787dd-512a-4fa6-92e1-72145d3b8770" />
+
