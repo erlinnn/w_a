@@ -17,34 +17,14 @@ const globe = new Globe(container)
     .backgroundColor('#000011')
     .pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 0);
 
-// Enable slow auto-rotation using globe.gl's controls
-let controls;
-try {
-    controls = globe.controls();
-    if (controls) {
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.5;
-        controls.enableZoom = false;
-    } else {
-        console.error('Controls not available from globe.controls()');
-    }
-} catch (err) {
-    console.error('Controls initialization failed:', err);
-}
+// Enable slow auto-rotation
+const controls = globe.controls();
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.5;
+controls.enableZoom = false;
 
-// Animation loop to ensure rendering
-function animate() {
-    requestAnimationFrame(animate);
-    if (controls && controls.update) controls.update();
-    globe.renderer().render(globe.scene(), globe.camera());
-}
-animate();
-
-// Debug rendering
-console.log('Globe initialized:', globe);
-if (!container.children.length) {
-    console.error('Globe canvas not appended to container');
-}
+let currentLat = 0, currentLng = 0;
+let autoRotateEnabled = true;
 
 // Debounce function
 function debounce(fn, delay) {
@@ -116,9 +96,7 @@ function showLoading() {
 
 // Zoom to city
 function zoomToLocation(lat, lng, city) {
-    if (controls) {
-        controls.autoRotate = false;
-    }
+    controls.autoRotate = false;
     autoRotateEnabled = false;
 
     // Add city label
@@ -152,16 +130,13 @@ function zoomToLocation(lat, lng, city) {
 // Zoom out to global view
 function zoomOut() {
     globe.labelsData([]);
-    if (controls) {
-        controls.autoRotate = true;
-    }
+    controls.autoRotate = true;
     autoRotateEnabled = true;
     overlay.classList.add('hidden');
     globe.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 2000);
 }
 
 // Handle input with debounce
-let autoRotateEnabled = true;
 const handleInput = debounce(async (e) => {
     const city = e.target.value.trim();
     if (city === '') {
