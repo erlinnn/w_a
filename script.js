@@ -18,13 +18,16 @@ const globe = new Globe(container)
     .pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 0);
 
 // Enable slow auto-rotation
-const controls = globe.controls();
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.5;
-controls.enableZoom = false;
-
-let currentLat = 0, currentLng = 0;
-let autoRotateEnabled = true;
+let controls;
+try {
+    controls = globe.controls();
+    if (!controls) throw new Error('Controls not initialized');
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
+    controls.enableZoom = false;
+} catch (err) {
+    console.error('Controls initialization failed:', err);
+}
 
 // Debounce function
 function debounce(fn, delay) {
@@ -96,7 +99,9 @@ function showLoading() {
 
 // Zoom to city
 function zoomToLocation(lat, lng, city) {
-    controls.autoRotate = false;
+    if (controls) {
+        controls.autoRotate = false;
+    }
     autoRotateEnabled = false;
 
     // Add city label
@@ -130,13 +135,16 @@ function zoomToLocation(lat, lng, city) {
 // Zoom out to global view
 function zoomOut() {
     globe.labelsData([]);
-    controls.autoRotate = true;
+    if (controls) {
+        controls.autoRotate = true;
+    }
     autoRotateEnabled = true;
     overlay.classList.add('hidden');
     globe.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 2000);
 }
 
 // Handle input with debounce
+let autoRotateEnabled = true;
 const handleInput = debounce(async (e) => {
     const city = e.target.value.trim();
     if (city === '') {
@@ -162,3 +170,9 @@ input.addEventListener('input', handleInput);
 
 // Initial state
 globe.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 0);
+
+// Debug rendering
+console.log('Globe initialized:', globe);
+if (!container.children.length) {
+    console.error('Globe canvas not appended to container');
+}
