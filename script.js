@@ -1,6 +1,3 @@
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
-import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
-
 const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826';
 const GLOBE_IMAGE_URL = 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
 const WEATHER_ICON_BASE = 'https://openweathermap.org/img/wn/';
@@ -20,14 +17,14 @@ const globe = new Globe(container)
     .backgroundColor('#000011')
     .pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 0);
 
-// Manually set up OrbitControls
-const scene = globe.scene();
-const camera = globe.camera();
-const renderer = globe.renderer();
-const controls = new OrbitControls(camera, renderer.domElement);
+// Enable slow auto-rotation
+const controls = globe.controls();
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.5;
 controls.enableZoom = false;
+
+let currentLat = 0, currentLng = 0;
+let autoRotateEnabled = true;
 
 // Debounce function
 function debounce(fn, delay) {
@@ -140,7 +137,6 @@ function zoomOut() {
 }
 
 // Handle input with debounce
-let autoRotateEnabled = true;
 const handleInput = debounce(async (e) => {
     const city = e.target.value.trim();
     if (city === '') {
