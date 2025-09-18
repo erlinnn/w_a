@@ -5,18 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Globe Weather App</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-    <script type="module" src="https://unpkg.com/three@0.169.0/build/three.module.js"></script>
-    <script type="module" src="https://unpkg.com/globe.gl@2.29.0/dist/globe.gl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script> <!-- Globe.GL CDN -->
 </head>
 <body>
+    <input type="text" id="locationInput" placeholder="Enter a city (e.g., New York)" maxlength="100">
+    
     <div id="globeViz"></div>
-    <input type="text" id="locationInput" placeholder="Enter a city (e.g., London)" maxlength="50">
-    <div id="weatherOverlay" class="hidden">
+    
+    <div id="weatherInfo">
         <h2 id="cityName"></h2>
-        <div id="weatherDetails"></div>
-        <img id="weatherIcon" alt="Weather icon">
+        <div class="weather-details">
+            <div class="detail">
+                <strong>Temperature:</strong> <span id="temp"></span>°C
+            </div>
+            <div class="detail">
+                <strong>Feels Like:</strong> <span id="feelsLike"></span>°C
+            </div>
+            <div class="detail">
+                <strong>Humidity:</strong> <span id="humidity"></span>%
+            </div>
+            <div class="detail">
+                <strong>Precipitation:</strong> <span id="precip"></span> mm
+            </div>
+            <div class="detail">
+                <strong>Weather:</strong> <span id="weatherDesc"></span>
+            </div>
+            <div class="detail">
+                <strong>Sunrise:</strong> <span id="sunrise"></span>
+            </div>
+            <div class="detail">
+                <strong>Sunset:</strong> <span id="sunset"></span>
+            </div>
+        </div>
+        <p id="errorMsg" style="display: none; color: #ff6b6b;">City not found. Try another!</p>
     </div>
-    <script type="module" src="script.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
