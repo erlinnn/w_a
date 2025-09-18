@@ -1,9 +1,9 @@
 body {
     margin: 0;
     padding: 0;
+    overflow: hidden;
     font-family: Arial, sans-serif;
     background: #000;
-    overflow: hidden;
 }
 
 #globeViz {
@@ -12,84 +12,60 @@ body {
 }
 
 #locationInput {
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 10;
     padding: 12px 20px;
     font-size: 16px;
-    border: 2px solid #fff;
+    border: none;
     border-radius: 25px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    outline: none;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     width: 300px;
     text-align: center;
-    backdrop-filter: blur(10px);
+    outline: none;
 }
 
-#locationInput::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+#locationInput:focus {
+    background: rgba(255, 255, 255, 1);
 }
 
-#weatherOverlay {
-    position: absolute;
-    top: 80px;
+#weatherInfo {
+    position: fixed;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
+    z-index: 10;
     background: rgba(0, 0, 0, 0.8);
-    border: 2px solid #fff;
+    color: white;
+    padding: 30px;
     border-radius: 15px;
-    padding: 20px;
-    color: #fff;
-    min-width: 300px;
-    text-align: center;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-}
-
-#weatherOverlay.hidden {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+    min-width: 250px;
     display: none;
+    backdrop-filter: blur(10px);
 }
 
-#weatherOverlay h2 {
-    margin: 0 0 10px;
+#weatherInfo h2 {
+    margin: 0 0 20px;
+    text-align: center;
     font-size: 24px;
 }
 
-#weatherDetails {
+.weather-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.detail {
     font-size: 14px;
-    line-height: 1.6;
 }
 
-#weatherDetails div {
-    margin: 5px 0;
-}
-
-#weatherIcon {
-    width: 64px;
-    height: 64px;
-    margin: 10px auto;
-    display: block;
-}
-
-#weatherOverlay.loading::before {
-    content: '';
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    border: 3px solid #fff;
-    border-top: 3px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 10px auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.hidden {
-    display: none !important;
+#weatherInfo p {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 12px;
 }
