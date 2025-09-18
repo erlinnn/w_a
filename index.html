@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Globe Weather App</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>" type="image/svg+xml">
     <script src="https://cdn.jsdelivr.net/npm/globe.gl"></script> <!-- Globe.GL CDN -->
 </head>
 <body>
@@ -35,6 +36,9 @@
             </div>
             <div class="detail">
                 <strong>Sunset:</strong> <span id="sunset"></span>
+            </div>
+            <div class="detail">
+                <strong>Wind Speed:</strong> <span id="wind"></span> km/h
             </div>
         </div>
         <p id="errorMsg" style="display: none; color: #ff6b6b;">City not found. Try another!</p>
