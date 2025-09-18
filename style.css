@@ -73,7 +73,6 @@ body {
     display: block;
 }
 
-/* Loading spinner */
 #weatherOverlay.loading::before {
     content: '';
     display: inline-block;
