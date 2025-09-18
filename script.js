@@ -1,4 +1,4 @@
-const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826'; // Your provided OpenWeatherMap API key
+const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826'; // API key
 const GLOBE_IMAGE_URL = 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
 const WEATHER_ICON_BASE = 'https://openweathermap.org/img/wn/';
 
@@ -21,7 +21,7 @@ const globe = new Globe(container)
 const controls = globe.controls();
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.5;
-controls.enableZoom = false; // Disable manual zoom for smoother UX
+controls.enableZoom = false;
 
 let currentLat = 0, currentLng = 0;
 let autoRotateEnabled = true;
@@ -35,27 +35,33 @@ function debounce(fn, delay) {
     };
 }
 
-// Geocode city to coordinates
-async function geocodeCity(city) {
-    try {
-        const res = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${API_KEY}`);
-        if (!res.ok) throw new Error('Failed to geocode city');
-        const data = await res.json();
-        if (!data[0]) throw new Error('City not found');
-        return { lat: data[0].lat, lon: data[0].lon, name: data[0].name };
-    } catch (err) {
-        throw new Error(`Geocoding error: ${err.message}`);
+// Geocode city to coordinates with retry
+async function geocodeCity(city, retries = 2) {
+    for (let i = 0; i <= retries; i++) {
+        try {
+            const res = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${API_KEY}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            const data = await res.json();
+            if (!data[0]) throw new Error('City not found');
+            return { lat: data[0].lat, lon: data[0].lon, name: data[0].name };
+        } catch (err) {
+            console.error(`Geocode attempt ${i + 1}/${retries + 1} failed: ${err.message}`);
+            if (i === retries) throw new Error('Unable to find city. Please check the name or try again later.');
+        }
     }
 }
 
-// Fetch weather data
-async function fetchWeather(lat, lon) {
-    try {
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`);
-        if (!res.ok) throw new Error('Failed to fetch weather');
-        return await res.json();
-    } catch (err) {
-        throw new Error(`Weather fetch error: ${err.message}`);
+// Fetch weather data with retry
+async function fetchWeather(lat, lon, retries = 2) {
+    for (let i = 0; i <= retries; i++) {
+        try {
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            return await res.json();
+        } catch (err) {
+            console.error(`Weather fetch attempt ${i + 1}/${retries + 1} failed: ${err.message}`);
+            if (i === retries) throw new Error('Unable to fetch weather. Please try again later.');
+        }
     }
 }
 
@@ -66,7 +72,7 @@ function formatTime(unix) {
 
 // Display weather data
 function showWeather(data, city) {
-    cityNameEl.textContent = `${city}, ${data.sys.country || ''}`;
+    cityNameEl.textContent = `${city}${data.sys.country ? `, ${data.sys.country}` : ''}`;
     detailsEl.innerHTML = `
         <div><strong>${Math.round(data.main.temp)}°C</strong> (feels like ${Math.round(data.main.feels_like)}°C)</div>
         <div>${data.weather[0].description}</div>
@@ -77,6 +83,15 @@ function showWeather(data, city) {
     `;
     iconEl.src = `${WEATHER_ICON_BASE}${data.weather[0].icon}@2x.png`;
     overlay.classList.remove('hidden');
+    input.value = city; // Keep input value after successful fetch
+}
+
+// Show loading state
+function showLoading() {
+    overlay.classList.remove('hidden');
+    cityNameEl.textContent = 'Loading...';
+    detailsEl.innerHTML = '';
+    iconEl.src = '';
 }
 
 // Zoom to city
@@ -95,6 +110,7 @@ function zoomToLocation(lat, lng, city) {
         .labelSize(0.5);
 
     // Animate zoom
+    showLoading();
     globe.pointOfView({ lat, lng, altitude: 0.3 }, 2000);
 
     // Fetch weather after zoom
@@ -103,8 +119,10 @@ function zoomToLocation(lat, lng, city) {
             const weather = await fetchWeather(lat, lng);
             showWeather(weather, city);
         } catch (err) {
+            console.error('Weather error:', err);
             alert(err.message);
             zoomOut();
+            input.value = '';
         }
     }, 2000);
 }
@@ -123,6 +141,7 @@ const handleInput = debounce(async (e) => {
     const city = e.target.value.trim();
     if (city === '') {
         if (!autoRotateEnabled) zoomOut();
+        input.value = '';
         return;
     }
 
@@ -132,8 +151,9 @@ const handleInput = debounce(async (e) => {
         currentLng = geo.lon;
         zoomToLocation(geo.lat, geo.lon, geo.name);
     } catch (err) {
+        console.error('Input error:', err);
         alert(err.message);
-        input.value = ''; // Clear input on error
+        input.value = '';
         zoomOut();
     }
 }, 500);
