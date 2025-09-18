@@ -17,16 +17,30 @@ const globe = new Globe(container)
     .backgroundColor('#000011')
     .pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 0);
 
-// Enable slow auto-rotation
+// Enable slow auto-rotation with explicit OrbitControls
 let controls;
 try {
-    controls = globe.controls();
-    if (!controls) throw new Error('Controls not initialized');
+    controls = new THREE.OrbitControls(globe.camera(), globe.renderer().domElement);
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.5;
     controls.enableZoom = false;
+    controls.enablePan = false;
 } catch (err) {
-    console.error('Controls initialization failed:', err);
+    console.error('OrbitControls initialization failed:', err);
+}
+
+// Animation loop to ensure rendering
+function animate() {
+    requestAnimationFrame(animate);
+    if (controls) controls.update();
+    globe.renderer().render(globe.scene(), globe.camera());
+}
+animate();
+
+// Debug rendering
+console.log('Globe initialized:', globe);
+if (!container.children.length) {
+    console.error('Globe canvas not appended to container');
 }
 
 // Debounce function
@@ -170,9 +184,3 @@ input.addEventListener('input', handleInput);
 
 // Initial state
 globe.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 0);
-
-// Debug rendering
-console.log('Globe initialized:', globe);
-if (!container.children.length) {
-    console.error('Globe canvas not appended to container');
-}
