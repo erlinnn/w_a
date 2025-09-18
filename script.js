@@ -8,20 +8,27 @@ let timeoutId;
 function initGlobe() {
     try {
         globe = new Globe(document.getElementById('globeViz'), {
-            globeImageUrl: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+            // Use a verified texture URL
+            globeImageUrl: 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
             // Fallback texture
-            globeImageUrlFallback: '//unpkg.com/three-globe/example/img/earth-night.jpg'
+            globeImageUrlFallback: 'https://unpkg.com/three-globe/example/img/earth-night.jpg'
         });
         console.log('Globe initialized');
 
+        // Set initial view
         globe.pointOfView(currentView, 0);
 
+        // Enable rotation
         const controls = globe.controls();
         controls.autoRotate = true;
         controls.autoRotateSpeed = 0.2;
 
-        // Remove problematic resize logic
-        // Window resize will be handled by Globe.GL internally
+        // Debug: Check if the globe is rendering
+        if (!globe) {
+            console.error('Globe object not created');
+        } else {
+            console.log('Globe object created successfully');
+        }
     } catch (error) {
         console.error('Globe initialization failed:', error);
     }
