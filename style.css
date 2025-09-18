@@ -3,7 +3,7 @@ body {
     padding: 0;
     overflow: hidden;
     font-family: Arial, sans-serif;
-    background: #000;
+    background: #000011; /* Matches the globe background for seamless integration */
 }
 
 #globeViz {
