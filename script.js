@@ -1,4 +1,4 @@
-const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826'; // API key
+const API_KEY = 'fa9e78cadd76a9a61cfc87dbca1a5826'; // Your OpenWeatherMap API key
 const GLOBE_IMAGE_URL = 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
 const WEATHER_ICON_BASE = 'https://openweathermap.org/img/wn/';
 
@@ -82,14 +82,14 @@ function showWeather(data, city) {
         <div>Sunset: ${formatTime(data.sys.sunset)}</div>
     `;
     iconEl.src = `${WEATHER_ICON_BASE}${data.weather[0].icon}@2x.png`;
-    overlay.classList.remove('hidden');
-    input.value = city; // Keep input value after successful fetch
+    overlay.classList.remove('loading', 'hidden');
+    input.value = city;
 }
 
 // Show loading state
 function showLoading() {
-    overlay.classList.remove('hidden');
-    cityNameEl.textContent = 'Loading...';
+    overlay.classList.add('loading', 'hidden');
+    cityNameEl.textContent = '';
     detailsEl.innerHTML = '';
     iconEl.src = '';
 }
