@@ -23,5 +23,4 @@ This is a cool web app that shows a 3D rotating Earth globe! You can search for 
 - Globe.GL for the 3D Earth
 - OpenWeatherMap for weather data
 
-## Thanks
-- Created by Sumukh R , Student of AI&ML
+## Created by Sumukh R , Student of AI&ML
