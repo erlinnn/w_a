@@ -1,39 +1,78 @@
-```css
 body {
     margin: 0;
-    overflow: hidden;
+    padding: 0;
     font-family: Arial, sans-serif;
+    background: #000;
+    overflow: hidden;
 }
-#search-container {
+
+#globeViz {
+    width: 100vw;
+    height: 100vh;
+}
+
+#locationInput {
     position: absolute;
     top: 20px;
-    left: 20px;
-    z-index: 1;
-}
-#search-input {
-    padding: 10px;
-    width: 200px;
-    border: none;
-    border-radius: 5px;
-}
-#weather-card {
-    position: absolute;
-    top: 60px;
-    left: 20px;
-    z-index: 1;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 16px;
+    border: 2px solid #fff;
+    border-radius: 25px;
     background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    outline: none;
+    width: 300px;
+    text-align: center;
     backdrop-filter: blur(10px);
+}
+
+#locationInput::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+#weatherOverlay {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #fff;
+    border-radius: 15px;
     padding: 20px;
-    border-radius: 10px;
-    color: white;
-    width: 250px;
+    color: #fff;
+    min-width: 300px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+#weatherOverlay.hidden {
     display: none;
 }
-#weather-card h2 {
-    margin: 0;
+
+#weatherOverlay h2 {
+    margin: 0 0 10px;
+    font-size: 24px;
 }
-.weather-icon {
-    width: 50px;
-    height: 50px;
+
+#weatherDetails {
+    font-size: 14px;
+    line-height: 1.6;
 }
-```
+
+#weatherDetails div {
+    margin: 5px 0;
+}
+
+#weatherIcon {
+    width: 64px;
+    height: 64px;
+    margin: 10px auto;
+    display: block;
+}
+
+.hidden {
+    display: none !important;
+}
