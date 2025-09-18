@@ -35,8 +35,8 @@ body {
 #weatherInfo {
     position: fixed;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    right: 20px; /* Moved to the right side */
+    transform: translateY(-50%); /* Vertical centering only */
     z-index: 10;
     background: rgba(0, 0, 0, 0.8);
     color: white;
@@ -44,6 +44,7 @@ body {
     border-radius: 15px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
     min-width: 250px;
+    max-width: 300px; /* Limit width for readability */
     display: none;
     backdrop-filter: blur(10px);
 }
